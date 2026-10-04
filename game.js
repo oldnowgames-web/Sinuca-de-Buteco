@@ -352,28 +352,34 @@ window.addEventListener("orientationchange",()=>setTimeout(fitTable,200));
 const BALL_D=6, R=3, POCKET_R=6.2;
 const pockets=[[0,0],[100,0],[200,0],[0,100],[100,100],[200,100]];
 
+let blackBy=null;
 function setTurn(t){
     currentTurn=t;
-    turnDisplay.textContent = mode==="practice" ? "Treino" : t==="player" ? "Sua vez" : "🤖 Vez da máquina";
+    turnDisplay.textContent = mode==="practice" ? "Treino"
+        : mode==="2p" ? "Vez de "+(t==="player"?save.name:"Jogador 2")
+        : t==="player" ? "Sua vez" : "🤖 Vez da máquina";
 }
 function updateScore(){
-    scoreElement.textContent = mode==="8ball" ? score+" x "+aiScore : score;
+    scoreElement.textContent = mode==="practice" ? score : score+" x "+aiScore;
 }
 
 function resetGame(){
     gameId++;
     document.querySelectorAll(".ball").forEach(x=>x.remove());
-    balls=[]; score=0; aiScore=0; gameOver=false; shotActive=false; aiThinking=false;
+    balls=[]; score=0; aiScore=0; blackBy=null; gameOver=false; shotActive=false; aiThinking=false;
     updateScore();
     whiteBall=createBall(0,40,50,"#fff");
     balls.push(whiteBall);
-    const colors=["#f0d21a","#164da3","#d9272e","#762ba7","#e47a1d","#178c4b"];
-    const cx=150,cy=50,d=BALL_D+.15;
-    balls.push(createBall(7,cx,cy,"#111"));
-    for(let i=0;i<6;i++){
-        const an=i*Math.PI/3;
-        balls.push(createBall(i+1,cx+Math.cos(an)*d,cy+Math.sin(an)*d,colors[i]));
-    }
+    const colors=["#f0d21a","#164da3","#d9272e","#762ba7","#e47a1d","#178c4b","#8b2e16"];
+    const d=BALL_D+.15, dx=d*.87, rows=[1,2,3,2];
+    let n=0;
+    rows.forEach((cnt,k)=>{
+        for(let i=0;i<cnt;i++){
+            const x=150+(k-2)*dx, y=50+(i-(cnt-1)/2)*d;
+            if(k===2&&i===1) balls.push(createBall(8,x,y,"#111"));
+            else { balls.push(createBall(n+1,x,y,colors[n])); n++; }
+        }
+    });
     setTurn("player");
     hideAim();
     modal.style.display="none";
@@ -433,7 +439,7 @@ const area=document.getElementById("gameArea");
 area.addEventListener("contextmenu",e=>e.preventDefault());
 area.addEventListener("pointerdown",e=>{
     if(e.pointerType==="mouse"&&e.button!==0) return;
-    if(currentTurn!=="player"||gameOver||ballsMoving()||!whiteBall.active) return;
+    if(!(currentTurn==="player"||(mode==="2p"&&currentTurn==="ai"))||gameOver||ballsMoving()||!whiteBall.active) return;
     aiming=true; mouseX=e.clientX; mouseY=e.clientY;
     updateAim(); e.preventDefault();
 });
@@ -447,18 +453,19 @@ window.addEventListener("pointerup",e=>{
     aiming=false;
     mouseX=e.clientX; mouseY=e.clientY;
     if(!whiteBall.active||gameOver){hideAim();return;}
+    const who=currentTurn==="ai"?"ai":"player";
     const {dist,angle,pull}=aimData();
     hideAim();
     if(dist<3) return;
     const p=Math.pow(pull/MAX_PULL,1.15)*3.4;
-    startShot("player",-Math.cos(angle)*p,-Math.sin(angle)*p);
+    startShot(who,-Math.cos(angle)*p,-Math.sin(angle)*p);
 });
 
 function startShot(who,vx,vy){
     whiteBall.vx=vx; whiteBall.vy=vy;
     shooter=who; shotActive=true; shotPots=0;
     currentTurn="busy";
-    turnDisplay.textContent = who==="ai" ? "🤖 Jogando..." : "Bolas rolando...";
+    turnDisplay.textContent = who==="ai"&&mode==="8ball" ? "🤖 Jogando..." : "Bolas rolando...";
     sound(120,.12,"triangle");
 }
 
@@ -495,8 +502,8 @@ function pocketCheck(ball){
             ball.element.style.display="none";
             sound(330,.15,"sine");
             if(ball.number!==0){
-                if(shooter==="player") score++; else aiScore++;
-                shotPots++;
+                if(ball.number===8) blackBy=shooter;
+                else { if(shooter==="player") score++; else aiScore++; shotPots++; }
                 updateScore();
                 createPocketEffect(ball.x,ball.y);
             }
@@ -574,26 +581,32 @@ function turnManager(){
         updateDOM();
     }
     const left=balls.filter(b=>b.number!==0&&b.active).length;
-    const need=mode==="practice"?7:4;
-    if(left===0||score>=need||aiScore>=need){
-        finish(mode==="practice"||score>aiScore); return;
-    }
+    if(blackBy){ finish(mode==="practice"?"lose":blackBy==="player"?"p2":"p1","black"); return; }
+    if(mode==="practice"){ if(left===0){ finish("win"); return; } }
+    else if(score>=4){ finish("p1"); return; }
+    else if(aiScore>=4){ finish("p2"); return; }
     if(mode==="practice") setTurn("player");
     else if(!scratch&&shotPots>0) setTurn(shooter);
     else setTurn(shooter==="player"?"ai":"player");
 }
 
-function finish(win){
+function finish(kind,why){
     gameOver=true;
-    if(win){
+    const extra=why==="black"?"<br>A bola 8 caiu antes da hora!":"";
+    const p1win = kind==="win"||kind==="p1";
+    if(mode==="2p"){
+        const w=p1win?save.name:"Jogador 2";
+        resultTitle.textContent="🏆 "+w+" VENCEU!";
+        resultText.innerHTML=`Placar: ${score} x ${aiScore}${extra}`;
+    }else if(p1win){
         const prize=mode==="practice"?20:100;
         save.wins++; save.coins+=prize; saveGame();
         resultTitle.textContent="🏆 VITÓRIA!";
-        resultText.innerHTML=`Você ${mode==="practice"?"limpou a mesa":"venceu a máquina"}!<br>+${prize} moedas<br><br>Vitórias: ${save.wins}`;
+        resultText.innerHTML=`Você ${mode==="practice"?"limpou a mesa":"venceu a máquina"}!${extra}<br>+${prize} moedas<br><br>Vitórias: ${save.wins}`;
     }else{
         save.losses=(save.losses||0)+1; saveGame();
         resultTitle.textContent="💀 DERROTA";
-        resultText.innerHTML=`A máquina levou essa. Placar: ${score} x ${aiScore}<br><br>Tente de novo!`;
+        resultText.innerHTML=mode==="practice"?`Você derrubou a bola 8 antes da hora.<br><br>Tente de novo!`:`A máquina levou essa. Placar: ${score} x ${aiScore}${extra}<br><br>Tente de novo!`;
     }
     setTimeout(()=>{ if(gameOver) modal.style.display="flex"; },500);
 }
