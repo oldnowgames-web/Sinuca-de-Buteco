@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<title>Sinuca do Boteco 2.0</title>
+
+<link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<!-- =====================================================
+     MENU
+===================================================== -->
+
+<div id="menu">
+
+<div class="decor-ball ballA"></div>
+<div class="decor-ball ballB"></div>
+<div class="decor-ball ballC"></div>
+<div class="decor-ball ballD"></div>
+
+<div class="menu-content">
+
+<div class="logo">
+    <small>🎱 BEM-VINDO AO</small>
+    <h1>
+        SINUCA<br>
+        <span>DO BOTECO</span>
+    </h1>
+    <p>A mesa é sua. O boteco é nosso.</p>
+</div>
+
+<div class="menu-card">
+
+<div class="menu-grid">
+
+<!-- jogador -->
+
+<div class="panel">
+
+<h2>👤 Jogador</h2>
+
+<label>Seu nome</label>
+
+<input
+    id="playerName"
+    maxlength="16"
+    placeholder="Digite seu nome..."
+>
+
+<div class="coins">
+    🪙 <span id="menuCoins">250</span> moedas
+</div>
+
+<h2 style="margin-top:25px">
+    🎱 Modo
+</h2>
+
+<div class="mode active" data-mode="8ball">
+    <strong>8-BALL</strong>
+    Jogue contra a máquina e tente vencer.
+</div>
+
+<div class="mode" data-mode="practice">
+    <strong>TREINO</strong>
+    Jogue sozinho sem adversário.
+</div>
+
+</div>
+
+
+<!-- personalização -->
+
+<div class="panel">
+
+<h2>🪵 Mesa</h2>
+
+<div class="table-options">
+
+<div class="table-option green active"
+data-color="#08733d"></div>
+
+<div class="table-option blue"
+data-color="#1765a8"></div>
+
+<div class="table-option red"
+data-color="#86241f"></div>
+
+<div class="table-option black"
+data-color="#202020"></div>
+
+<div class="table-option purple"
+data-color="#4b276c"></div>
+
+</div>
+
+<h2 style="margin-top:25px">
+    🎯 Taco
+</h2>
+
+<div class="cue-option active" data-cue="#b87935">
+    <div class="cue-preview cue1"></div>
+    Taco Clássico
+</div>
+
+<div class="cue-option" data-cue="#dddddd">
+    <div class="cue-preview cue2"></div>
+    Taco Prata
+</div>
+
+<div class="cue-option" data-cue="#351d0d">
+    <div class="cue-preview cue3"></div>
+    Taco Madeira
+</div>
+
+<div class="cue-option" data-cue="#a51d18">
+    <div class="cue-preview cue4"></div>
+    Taco Rubi 🔒
+</div>
+
+</div>
+
+</div>
+
+<button class="start" id="startButton">
+    🎱 COMEÇAR PARTIDA
+</button>
+
+</div>
+
+</div>
+</div>
+
+
+<!-- =====================================================
+     JOGO
+===================================================== -->
+
+<div id="game">
+
+<div class="game-header">
+
+<div class="game-title">
+    🎱 SINUCA DO BOTECO
+</div>
+
+<div class="game-controls">
+
+<div class="info">
+    👤 <span id="playerDisplay">Jogador</span>
+</div>
+
+<div class="info">
+    🪙 <span id="gameCoins">250</span>
+</div>
+
+<div class="info">
+    🎱 <span id="score">0</span> bolas
+</div>
+
+<div class="info">
+    🤖 <span id="turnDisplay">Sua vez</span>
+</div>
+
+<button class="game-btn" id="soundButton">
+    🔊
+</button>
+
+<button class="game-btn" id="resetButton">
+    ↻
+</button>
+
+<button class="game-btn" id="menuButton">
+    MENU
+</button>
+
+</div>
+
+</div>
+
+<div id="gameArea">
+
+<div id="table">
+
+<div class="pocket tl"></div>
+<div class="pocket tr"></div>
+<div class="pocket bl"></div>
+<div class="pocket br"></div>
+<div class="pocket tm"></div>
+<div class="pocket bm"></div>
+
+<div id="aimLine"></div>
+<div id="aimPoint"></div>
+<div id="cue"></div>
+
+</div>
+
+</div>
+
+<div id="powerPanel">
+
+<div class="power-text">
+    FORÇA DA TACADA
+</div>
+
+<div class="power-bg">
+    <div id="powerBar"></div>
+</div>
+
+</div>
+
+</div>
+
+
+<!-- =====================================================
+     RESULTADO
+===================================================== -->
+
+<div id="modal">
+
+<div class="modal-box">
+
+<h2 id="resultTitle">
+    VITÓRIA!
+</h2>
+
+<p id="resultText">
+    Mandou muito bem!
+</p>
+
+<button class="modal-button" id="continueButton">
+    CONTINUAR
+</button>
+
+</div>
+
+</div>
+
+
+<script src="game.js"></script>
+
+</body>
+</html>
